@@ -90,21 +90,11 @@ jobs:
         id: docker-build-deb
         run: |
           ./onlyoffice-package-builder.sh --product-version=${{ steps.get-product-version.outputs.product-version }} --build-number=${{ steps.get-build-number.outputs.build-number }} --unlimited-organization=${{ github.repository_owner }} --tag-suffix=${{ env.TAG_SUFFIX }} --debian-package-suffix=${{ env.DEBIAN_PACKAGE_SUFFIX }} --deb-only
-      - name: Get deb release filename
+      - name: Get tgz release filename
         id: deb-release
         run: |
-          RELEASE_DEB=$(find "${{ github.workspace }}" -type f -name "onlyoffice-documentserver_*_amd64.deb")
-          
-          if [ -z "$RELEASE_DEB" ]; then
-            echo "::error::DEB package not found!"
-            exit 1
-          fi
-          
-          RELEASE_SHORT_DEB=$(basename "${RELEASE_DEB}")
-          
-          echo "Found DEB package: ${RELEASE_DEB}"
-          echo "Short filename: ${RELEASE_SHORT_DEB}"
-          
+          RELEASE_DEB=$(find "${{ github.workspace }}" -name "onlyoffice-documentserver_${{ steps.get-product-version.outputs.product-version }}-${{ steps.get-build-number.outputs.build-number }}${{ env.DEBIAN_PACKAGE_SUFFIX }}_amd64.deb" -type f)
+          RELEASE_SHORT_DEB=$(basename ${RELEASE_DEB})
           echo "filename=${RELEASE_DEB}" >> $GITHUB_OUTPUT
           echo "shortfilename=${RELEASE_SHORT_DEB}" >> $GITHUB_OUTPUT
       - name: Release
